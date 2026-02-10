@@ -66,9 +66,9 @@ const ProjectMapping = () => {
     <div className="p-6 lg:p-8 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Project Mapping</h1>
+          <h1 className="text-2xl font-bold text-foreground">Project & Schema Mapping</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Configure JIRA to ALM project mappings
+            Define how JIRA dashboards map to ALM schemas, domains, and projects. Each mapping corresponds to a PowerShell execution context.
           </p>
         </div>
         <Button onClick={openAdd} size="sm">
@@ -83,27 +83,29 @@ const ProjectMapping = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">JIRA Project</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">ALM Schema</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">JIRA Dashboard</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">ALM Schema ($SSchema)</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">ALM Domain</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">ALM Project</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Last Sync</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {mappings.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center py-8 text-muted-foreground">
-                      No mappings configured. Click "Add Mapping" to get started.
+                    <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No mappings configured. Click "Add Mapping" to define a JIRA → ALM synchronization path.
                     </td>
                   </tr>
                 )}
                 {mappings.map((m) => (
                   <tr key={m.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="px-4 py-3 font-medium">{m.jiraProject}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{m.almSchema}</td>
+                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{m.almSchema}</td>
                     <td className="px-4 py-3 text-muted-foreground">{m.almDomain}</td>
                     <td className="px-4 py-3 text-muted-foreground">{m.almProject}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs">{m.lastSyncTime || "Never"}</td>
                     <td className="px-4 py-3 text-right space-x-1">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
                         <Pencil className="w-4 h-4" />
