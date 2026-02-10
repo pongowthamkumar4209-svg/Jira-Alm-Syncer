@@ -1,4 +1,4 @@
-import { ProjectMapping, SyncLogEntry, SyncStatus } from "@/types/sync";
+import { ProjectMapping, SyncLogEntry, SyncExecution } from "@/types/sync";
 
 // In-memory store for project mappings
 let mappings: ProjectMapping[] = [
@@ -8,6 +8,8 @@ let mappings: ProjectMapping[] = [
     almSchema: "INFRA_SCHEMA",
     almDomain: "INFRASTRUCTURE",
     almProject: "Infra_Requirements",
+    lastSyncTime: "2026-02-10 09:16",
+    lastResult: "Success",
   },
   {
     id: "2",
@@ -15,43 +17,57 @@ let mappings: ProjectMapping[] = [
     almSchema: "APP_SCHEMA",
     almDomain: "APPLICATION",
     almProject: "App_Requirements",
+    lastSyncTime: "2026-02-10 09:16",
+    lastResult: "Failed",
   },
 ];
 
-let syncStatuses: SyncStatus[] = [];
+let executions: SyncExecution[] = [
+  {
+    id: "EXEC-20260210-001",
+    triggeredBy: "admin",
+    startTime: new Date("2026-02-10T09:15:00"),
+    endTime: new Date("2026-02-10T09:17:00"),
+    overallStatus: "partial",
+    statuses: [
+      { mappingId: "1", jiraProject: "INFRA Dashboard", almSchema: "INFRA_SCHEMA", status: "completed", startedAt: new Date("2026-02-10T09:15:00"), completedAt: new Date("2026-02-10T09:16:00") },
+      { mappingId: "2", jiraProject: "APP Dashboard", almSchema: "APP_SCHEMA", status: "failed", startedAt: new Date("2026-02-10T09:16:00"), completedAt: new Date("2026-02-10T09:17:00"), error: "HTTP 403 from ALM" },
+    ],
+  },
+];
 
 // Mock sync log data
 const mockLogs: SyncLogEntry[] = [
   {
-    id: "1", dateTime: "2026-02-10 09:15:23", jiraIssueKey: "INFRA-1024",
+    id: "1", executionId: "EXEC-20260210-001", dateTime: "2026-02-10 09:15:23", jiraIssueKey: "INFRA-1024",
     almRequirementID: "REQ-4501", syncType: "CREATE", result: "Success",
     almSchema: "INFRA_SCHEMA", requirementName: "Network Firewall Update",
     requirementType: "Functional", status: "Active", otitProject: "INFRA-2026",
     parentRTMID: "RTM-100", traceStatus: "Linked", warnings: "", scriptErrors: "", plannedRelease: "R2026.Q1",
   },
   {
-    id: "2", dateTime: "2026-02-10 09:15:45", jiraIssueKey: "INFRA-1025",
+    id: "2", executionId: "EXEC-20260210-001", dateTime: "2026-02-10 09:15:45", jiraIssueKey: "INFRA-1025",
     almRequirementID: "REQ-4502", syncType: "UPDATE", result: "Success",
     almSchema: "INFRA_SCHEMA", requirementName: "Load Balancer Config",
     requirementType: "Non-Functional", status: "Active", otitProject: "INFRA-2026",
     parentRTMID: "RTM-100", traceStatus: "Linked", warnings: "Field mismatch resolved", scriptErrors: "", plannedRelease: "R2026.Q1",
   },
   {
-    id: "3", dateTime: "2026-02-10 09:16:02", jiraIssueKey: "APP-512",
+    id: "3", executionId: "EXEC-20260210-001", dateTime: "2026-02-10 09:16:02", jiraIssueKey: "APP-512",
     almRequirementID: "REQ-4503", syncType: "CREATE", result: "Success",
     almSchema: "APP_SCHEMA", requirementName: "User Auth Module",
     requirementType: "Functional", status: "New", otitProject: "APP-2026",
     parentRTMID: "RTM-201", traceStatus: "Pending", warnings: "", scriptErrors: "", plannedRelease: "R2026.Q2",
   },
   {
-    id: "4", dateTime: "2026-02-10 09:16:30", jiraIssueKey: "APP-513",
+    id: "4", executionId: "EXEC-20260210-001", dateTime: "2026-02-10 09:16:30", jiraIssueKey: "APP-513",
     almRequirementID: "", syncType: "BLOCK", result: "Blocked",
     almSchema: "APP_SCHEMA", requirementName: "Payment Gateway Integration",
     requirementType: "Functional", status: "Blocked", otitProject: "APP-2026",
     parentRTMID: "", traceStatus: "Unlinked", warnings: "Missing parent RTM", scriptErrors: "HTTP 403 from ALM", plannedRelease: "R2026.Q2",
   },
   {
-    id: "5", dateTime: "2026-02-09 14:22:10", jiraIssueKey: "INFRA-1020",
+    id: "5", executionId: "EXEC-20260210-001", dateTime: "2026-02-09 14:22:10", jiraIssueKey: "INFRA-1020",
     almRequirementID: "REQ-4490", syncType: "UPDATE", result: "Success",
     almSchema: "INFRA_SCHEMA", requirementName: "DNS Migration Plan",
     requirementType: "Technical", status: "Closed", otitProject: "INFRA-2026",
@@ -62,7 +78,7 @@ const mockLogs: SyncLogEntry[] = [
 export const getMappings = () => [...mappings];
 
 export const addMapping = (m: Omit<ProjectMapping, "id">) => {
-  const newMapping = { ...m, id: Date.now().toString() };
+  const newMapping: ProjectMapping = { ...m, id: Date.now().toString(), lastResult: "—" };
   mappings = [...mappings, newMapping];
   return newMapping;
 };
@@ -75,7 +91,22 @@ export const removeMapping = (id: string) => {
   mappings = mappings.filter((x) => x.id !== id);
 };
 
-export const getSyncStatuses = () => [...syncStatuses];
-export const setSyncStatuses = (s: SyncStatus[]) => { syncStatuses = s; };
-
 export const getSyncLogs = () => [...mockLogs];
+export const getExecutions = () => [...executions];
+
+export const addExecution = (exec: SyncExecution) => {
+  executions = [exec, ...executions];
+};
+
+export const generateExecutionId = () => {
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10).replace(/-/g, "");
+  const seq = String(executions.length + 1).padStart(3, "0");
+  return `EXEC-${date}-${seq}`;
+};
+
+export const updateMappingLastSync = (id: string, result: "Success" | "Failed") => {
+  const now = new Date();
+  const time = `${now.toISOString().slice(0, 10)} ${now.toTimeString().slice(0, 5)}`;
+  mappings = mappings.map((x) => x.id === id ? { ...x, lastSyncTime: time, lastResult: result } : x);
+};

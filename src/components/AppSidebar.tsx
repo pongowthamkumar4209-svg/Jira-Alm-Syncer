@@ -13,10 +13,10 @@ import { useNavigate } from "react-router-dom";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Project Mapping", url: "/project-mapping", icon: FolderSync },
-  { title: "Run Sync", url: "/run-sync", icon: Play },
+  { title: "Project & Schema Mapping", url: "/project-mapping", icon: FolderSync },
+  { title: "Execute Synchronization", url: "/run-sync", icon: Play },
   { title: "Sync Logs", url: "/sync-logs", icon: FileText },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Integration Configuration", url: "/settings", icon: Settings },
 ];
 
 const AppSidebar = () => {
@@ -29,7 +29,7 @@ const AppSidebar = () => {
   };
 
   return (
-    <aside className="w-60 min-h-screen bg-sidebar flex flex-col border-r border-sidebar-border shrink-0">
+    <aside className="w-64 min-h-screen bg-sidebar flex flex-col border-r border-sidebar-border shrink-0">
       {/* Brand */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-2.5">
@@ -46,13 +46,14 @@ const AppSidebar = () => {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-0.5">
+        <p className="text-[10px] font-semibold text-sidebar-foreground/40 uppercase tracking-wider px-3 mb-2">Navigation</p>
         {navItems.map((item) => (
           <NavLink
             key={item.url}
             to={item.url}
             end={item.url === "/dashboard"}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
             activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
           >
             <item.icon className="w-4 h-4 shrink-0" />
