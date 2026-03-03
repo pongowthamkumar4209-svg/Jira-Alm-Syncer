@@ -426,10 +426,11 @@ do {
 
 # Final result
 $syncCount = $issues.Count
+Write-Host $syncCount
 
 
 if ($syncCount -eq 0) {
-    #Write-Host "No Requirements retrieved from JIRA for $Schema."
+    Write-Host "No Requirements retrieved from JIRA for $Schema."
     #exit
 }
 
@@ -447,7 +448,7 @@ $basicAuthenticationHeader = "Basic $([System.Convert]::ToBase64String([System.T
 # Authenticate to ALM
 try {
     Invoke-RestMethod -Method Post -Uri "https://$almHost/qcbin/authentication-point/authenticate" -Headers @{ Authorization = $basicAuthenticationHeader } -SessionVariable 'webSession' -UseBasicParsing
-    #Write-Host 'Successfully authenticated to ALM' -ForegroundColor Green
+    Write-Host 'Successfully authenticated to ALM' -ForegroundColor Green
 } catch {
     Write-Error "Failed to authenticate to ALM. $($_.Exception.Message)"
     exit
@@ -456,7 +457,7 @@ try {
 # Start ALM session
 try {
     Invoke-RestMethod -Method Post -Uri "https://$almHost/qcbin/rest/site-session" -ContentType 'application/json' -WebSession $webSession -UseBasicParsing
-    #Write-Host 'Successfully opened an ALM session' -ForegroundColor Green
+    Write-Host 'Successfully opened an ALM session' -ForegroundColor Green
 } catch {
     Write-Error "Failed to open ALM session. $($_.Exception.Message)"
     exit
@@ -473,6 +474,7 @@ foreach ($issue in $issues) {
 
     $ALMReqID = $issue.fields.customfield_16723
     $RTM_ID = $issue.key
+    Write-Host $RTM_ID
     # $RequirementType = $issue.fields.customfield_19105
     $RequirementType = $issue.fields.issuetype.name
     $Name = $issue.fields.customfield_19914 
@@ -834,7 +836,7 @@ foreach ($issue in $issues) {
 
 ############################################################## CREATE PORTION #############################################
     if ($ALMReqID -eq 0) {
-
+        Write-Host "Creating RTM ID: $RTM_ID"
         if(-not $OTITProgram -or $OTITProgram -eq "Null" ){
             $Warnings="Error: OT/IT Program cannot be a NULL value."
             $synctype='BLOCK CREATE'
